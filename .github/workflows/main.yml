@@ -21,10 +21,10 @@ jobs:
         with: 
           java-version: '17' 
           distribution: 'temurin' 
-      - name: 'Build with Gradle'
+      - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
-        with:
-          arguments: build test publish
+      - name: Build Jar
+        run: ./gradlew shadowJar
       - name: Upload Version File
         run: |
           ./gradlew writeVersionFile
