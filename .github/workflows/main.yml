@@ -1,0 +1,47 @@
+name: Build Jar
+on:
+  workflow_dispatch: 
+    inputs: 
+      logLevel: 
+        description: 'Log level' 
+        required: true 
+        default: 'warning' 
+  push: 
+    branches: [ "main" ] 
+  pull_request: 
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps: 
+      - uses: actions/checkout@v3 
+      - name: Set up JDK 17 
+        uses: actions/setup-java@v3 
+        with: 
+          java-version: '17' 
+          distribution: 'temurin' 
+      - name: 'Build with Gradle'
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: build test publish
+      - name: Upload Version File
+        run: |
+          ./gradlew writeVersionFile
+          echo "RELEASE_VERSION=$(cat build/version.txt)" >> $GITHUB_ENV
+        id: build
+      - name: Use Version Number
+        run: |
+          echo "Version number is ${{ env.RELEASE_VERSION }}"
+      - name: Build Jar
+        run: ./gradlew shadowJar
+      - uses: "marvinpinto/action-automatic-releases@latest" 
+        with: 
+          repo_token: "${{ secrets.GITHUB_TOKEN }}" 
+          automatic_release_tag: "dev-${{ env.SHORT_SHA }}" 
+          prerelease: false 
+          title: "Release ${{ env.RELEASE_VERSION }}" 
+          files: | 
+            target/*.jar
+      - name: DONE!!!
+        run: echo "done"
