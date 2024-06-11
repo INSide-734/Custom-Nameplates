@@ -23,6 +23,8 @@ jobs:
           distribution: 'temurin' 
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
+      - name: Grant execute permission to gradlew 
+        run: chmod +x ./gradlew 
       - name: Build Jar
         run: ./gradlew shadowJar
       - name: Upload Version File
