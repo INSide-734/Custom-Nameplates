@@ -1,49 +1,49 @@
-name: Build Jar
+name: Build Jar 
 on:
-  workflow_dispatch: 
-    inputs: 
-      logLevel: 
-        description: 'Log level' 
-        required: true 
-        default: 'warning' 
-  push: 
+  workflow_dispatch:  
+    inputs:  
+      logLevel:  
+        description: 'Log level'  
+        required: true  
+        default: 'warning'
+  push:  
+    branches: [ "main" ]  
+  pull_request:  
     branches: [ "main" ] 
-  pull_request: 
-    branches: [ "main" ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps: 
-      - uses: actions/checkout@v3 
-      - name: Set up JDK 17 
-        uses: actions/setup-java@v3 
-        with: 
-          java-version: '17' 
-          distribution: 'temurin' 
+jobs: 
+  build: 
+    runs-on: ubuntu-latest 
+    permissions: write-all 
+    steps:  
+      - uses: actions/checkout@v3  
+      - name: Set up JDK 17  
+        uses: actions/setup-java@v3  
+        with:  
+          java-version: '17'  
+          distribution: 'temurin'
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
       - name: Grant execute permission to gradlew 
         run: chmod +x ./gradlew 
-      - name: Build Jar
-        run: ./gradlew shadowJar
-      - name: Upload Version File
-        run: |
-          ./gradlew writeVersionFile
-          echo "RELEASE_VERSION=$(cat build/version.txt)" >> $GITHUB_ENV
-        id: build
-      - name: Use Version Number
-        run: |
-          echo "Version number is ${{ env.RELEASE_VERSION }}"
-      - name: Build Jar
-        run: ./gradlew shadowJar
-      - uses: "marvinpinto/action-automatic-releases@latest" 
-        with: 
-          repo_token: "${{ secrets.GITHUB_TOKEN }}" 
-          automatic_release_tag: "dev-${{ env.SHORT_SHA }}" 
-          prerelease: false 
-          title: "Release ${{ env.RELEASE_VERSION }}" 
-          files: | 
-            target/*.jar
-      - name: DONE!!!
+      - name: Build Jar 
+        run: | 
+          ./gradlew build 
+          mkdir -p ${{ github.workspace }}/artifacts 
+          mv target/*.jar ${{ github.workspace }}/artifacts/ 
+      - name: Set version as environment variable 
+        run: | 
+          RELEASE_VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}') 
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV 
+      - name: Use Version Number 
+        run: | 
+          echo "Version number is ${{ env.RELEASE_VERSION }}" 
+      - uses: "marvinpinto/action-automatic-releases@latest"  
+        with:  
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"  
+          automatic_release_tag: "${{ env.RELEASE_VERSION }}"  
+          prerelease: false  
+          title: "Release ${{ env.RELEASE_VERSION }}"  
+          files: |  
+            ${{ github.workspace }}/artifacts/*.jar 
+      - name: DONE!!! 
         run: echo "done"
