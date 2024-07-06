@@ -90,7 +90,8 @@ public class ResourcePackManagerImpl implements ResourcePackManager {
         // save unicodes
         this.saveLegacyUnicodes();
         // generate shaders
-        this.generateShaders();
+        this.generateShaders("ResourcePack" + File.separator + "assets" + File.separator + "minecraft" + File.separator + "shaders" + File.separator + "core" + File.separator);
+        this.generateShaders("ResourcePack" + File.separator + "overlay_1_20_5" + File.separator + "assets" + File.separator + "minecraft" + File.separator + "shaders" + File.separator + "core" + File.separator);
 
         // add offset characters
         this.getOffsets(texturesFolder).forEach(providers::add);
@@ -110,9 +111,8 @@ public class ResourcePackManagerImpl implements ResourcePackManager {
         this.copyResourcePackToHookedPlugins(resourcePackFolder);
     }
 
-    private void generateShaders() {
+    private void generateShaders(String path) {
         if (!CNConfig.enableShader) return;
-        String path = "ResourcePack" + File.separator + "assets" + File.separator + "minecraft" + File.separator + "shaders" + File.separator + "core" + File.separator;
         plugin.saveResource(path + "rendertype_text.fsh", true);
         plugin.saveResource(path + "rendertype_text.json", true);
         plugin.saveResource(path + "rendertype_text.vsh", true);
@@ -496,23 +496,23 @@ public class ResourcePackManagerImpl implements ResourcePackManager {
 
     private void setPackFormat() {
         plugin.saveResource("ResourcePack" + File.separator + "pack.mcmeta", false);
-        File format_file = new File(plugin.getDataFolder(), "ResourcePack" + File.separator + "pack.mcmeta");
-        String line;
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(format_file), StandardCharsets.UTF_8))) {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append(System.lineSeparator());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(new File(plugin.getDataFolder(),
-                        "ResourcePack" + File.separator + "pack.mcmeta")), StandardCharsets.UTF_8))) {
-            writer.write(sb.toString().replace("%version%", String.valueOf(plugin.getVersionManager().getPackFormat())));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        File format_file = new File(plugin.getDataFolder(), "ResourcePack" + File.separator + "pack.mcmeta");
+//        String line;
+//        StringBuilder sb = new StringBuilder();
+//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(format_file), StandardCharsets.UTF_8))) {
+//            while ((line = reader.readLine()) != null) {
+//                sb.append(line).append(System.lineSeparator());
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        try (BufferedWriter writer = new BufferedWriter(
+//                new OutputStreamWriter(new FileOutputStream(new File(plugin.getDataFolder(),
+//                        "ResourcePack" + File.separator + "pack.mcmeta")), StandardCharsets.UTF_8))) {
+//            writer.write(sb.toString().replace("%version%", String.valueOf(plugin.getVersionManager().getPackFormat())));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static class ShaderConstants {
